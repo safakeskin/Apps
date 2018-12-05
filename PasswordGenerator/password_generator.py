@@ -2,6 +2,10 @@ from sys import argv
 import string
 import secrets
 import os
+import qrcode
+from qrcode.image import svg
+
+factory = svg.SvgPathImage
 
 def password_generator(seed=1):
     def desired_length():
@@ -34,9 +38,10 @@ if __name__ == "__main__":
             pswd = password_generator( int(argv[1]) )
         print("Generated password is: {}".format(pswd))
     
-    elif len(argv) == 3 or len(argv) == 4 or len(argv) == 5:
+    elif len(argv) == 3 or len(argv) == 4 or len(argv) == 5 or len(argv) == 6:
         username    = argv[3] if len(argv) > 3 else ""
-        length      = argv[4] if len(argv) > 4 else "1"
+        length      = argv[5] if len(argv) > 5 else "1"
+        mode        = argv[4] if len(argv) > 4 else "t"
 
         if length.isnumeric():
             length = int(length)
@@ -52,10 +57,26 @@ if __name__ == "__main__":
         if password_f_path.count('/') == 0:
             password_f_path = cwd + "/" + password_f_path
         
-        with open(password_f_path,'a') as f:
-            pswd = password_generator( length )
-            f.write( "Program Name: " + program_name + "\nUsername: " + username + "\nPassword: " + pswd + "\n\n" )
-            print("Password is written to file: {}".format(password_f_path))
+        pswd = password_generator( length )
+        password_data = "\nProgram Name: {}\nUsername: {}\nPassword: {}\n".format(program_name, username, pswd)
+
+        # print("mode is: {}".format(mode))
+
+        if mode.count('t') > 0:
+            # print("Will be written to text.")
+            with open(password_f_path,'a') as f:
+                f.write(password_data)
+                # print("Password is written to file: {}".format(password_f_path))
+        
+        if mode.count('i') > 0:
+            # print("Will be written to image.")
+            img_path_list   = password_f_path.split('/')
+            f_name          = img_path_list[-1].strip('.~/').split('.')[0]
+            img_path = '/' + '/'.join(img_path_list[: len(img_path_list)-1 ]) + '/' + program_name + '.png'
+            
+            # print(img_path)
+            img = qrcode.make(password_data, image_factory=factory)
+            img.save(img_path)
 
     else:
         print("Wrong number of parameters provided, program will be terminated!!!\n\n")
