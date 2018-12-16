@@ -9,4 +9,6 @@ That program will generate 2 list of number, I will copy 1st list and print thes
 Also, I like Haskell :))
 
 comiple using ghc compiler with the command below: 
+```
 ghc -o <Program Name> PageNumbersGenerator.hs
+```
